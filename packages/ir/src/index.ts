@@ -30,10 +30,6 @@ export {
   themeTokensSchema,
   breakpointSchema,
   documentSchema,
-  jsonPatchSchema,
-  jsonPatchOpSchema,
-  patchSetSchema,
-  type JsonPatchSchema,
 } from "./schemas.js";
 
 // Errors
@@ -69,6 +65,18 @@ export {
   allNodeIds,
   subtreeSize,
 } from "./selectors.js";
+
+// Patches
+export type { JsonPatch, PatchSet, SerializedPatchSet } from "./patches.js";
+export {
+  toJsonPatch,
+  fromJsonPatch,
+  applyPatches,
+  invertPatches,
+  serializePatchSet,
+  deserializePatchSet,
+} from "./patches.js";
+export { jsonPatchSchema, patchSetSchema } from "./patches.schema.js";
 
 // Normalize / builders
 export type { NestedNode, NestedDocument } from "./normalize.js";

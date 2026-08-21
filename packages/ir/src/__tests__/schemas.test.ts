@@ -4,8 +4,8 @@ import {
   docNodeSchema,
   nodeIdSchema,
   themeTokensSchema,
-  jsonPatchSchema,
 } from "../schemas.js";
+import { jsonPatchSchema } from "../patches.schema.js";
 import { EMPTY_DOCUMENT, DEFAULT_THEME } from "../constants.js";
 
 // ---------------------------------------------------------------------------
