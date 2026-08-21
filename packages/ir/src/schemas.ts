@@ -94,22 +94,5 @@ export const documentSchema = z.object({
   breakpoints: z.array(breakpointSchema),
 });
 
-// ---------------------------------------------------------------------------
-// JsonPatch (RFC 6902) — used by the patch engine and SSE events
-// ---------------------------------------------------------------------------
-
-export const jsonPatchOpSchema = z.enum(["add", "remove", "replace", "move", "copy", "test"]);
-
-export const jsonPatchSchema = z.object({
-  op: jsonPatchOpSchema,
-  path: z.string().startsWith("/"),
-  value: jsonValueSchema.optional(),
-  from: z.string().optional(),
-});
-
-export type JsonPatchSchema = z.infer<typeof jsonPatchSchema>;
-
-export const patchSetSchema = z.object({
-  patches: z.array(jsonPatchSchema),
-  inverse: z.array(jsonPatchSchema),
-});
+// Note: JsonPatch and PatchSet Zod schemas live in patches.schema.ts
+// (they depend on the JsonPatch type from patches.ts to be properly typed).
