@@ -24,6 +24,37 @@ importers:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@22.20.1)
 
+  packages/commands:
+    dependencies:
+      '@pageforge/ir':
+        specifier: workspace:*
+        version: link:../ir
+      immer:
+        specifier: ^10.1.0
+        version: 10.2.0
+      nanoid:
+        specifier: ^5.0.0
+        version: 5.1.16
+      neverthrow:
+        specifier: ^8.1.0
+        version: 8.2.0
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^2.1.0
+        version: 2.1.9(vitest@2.1.9(@types/node@22.20.1))
+      fast-check:
+        specifier: ^3.22.0
+        version: 3.23.2
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.20.1)
+
   packages/ir:
     dependencies:
       immer:
