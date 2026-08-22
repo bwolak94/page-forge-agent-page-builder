@@ -3,11 +3,13 @@
 /**
  * SelectionOverlay — positioned absolutely over the iframe.
  *
- * Translates iframe-relative NodeBounds to parent-DOM coordinates using the
- * iframe's top/left offset. Renders hover indicator and selection boxes.
+ * - HoverIndicator: dashed outline on hovered node (non-selected).
+ * - SelectionBox: solid outline on selected node; also a useDraggable handle
+ *   so existing nodes can be drag-moved from the canvas without a separate handle.
  */
 
-import type { NodeId } from "@pageforge/contracts";
+import { useDraggable } from "@dnd-kit/core";
+import type { NodeId } from "@pageforge/ir";
 import type { NodeBounds } from "@pageforge/contracts";
 
 interface RectProps {
@@ -39,20 +41,29 @@ interface SelectionBoxProps extends RectProps {
 
 function SelectionBox({ bounds, offset, onSelect }: SelectionBoxProps) {
   const { rect, id } = bounds;
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `existing:${id}`,
+    data: { type: "existing", nodeId: id },
+  });
+
   return (
     <div
+      ref={setNodeRef}
       className="selection-box"
       onClick={() => onSelect(id)}
+      {...attributes}
+      {...listeners}
       style={{
         position: "absolute",
         top: rect.top + offset.top,
         left: rect.left + offset.left,
         width: rect.width,
         height: rect.height,
-        outline: "2px solid #3b82f6",
+        outline: isDragging ? "2px solid #60a5fa" : "2px solid #3b82f6",
         pointerEvents: "auto",
-        cursor: "pointer",
+        cursor: isDragging ? "grabbing" : "grab",
         boxSizing: "border-box",
+        opacity: isDragging ? 0.4 : 1,
       }}
     />
   );

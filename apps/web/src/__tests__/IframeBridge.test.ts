@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { IframeBridge } from "../components/canvas/IframeBridge.js";
-import type { FrameMessage, NodeId } from "@pageforge/contracts";
+import type { FrameMessage } from "@pageforge/contracts";
+import type { NodeId } from "@pageforge/ir";
 import { nodeId } from "@pageforge/ir";
 
 function makeIframe(postMessageFn = vi.fn()): HTMLIFrameElement {
