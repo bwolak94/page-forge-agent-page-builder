@@ -1,18 +1,22 @@
 "use client";
 
 /**
- * Editor page — full editor shell with LayerPanel + Canvas.
+ * Editor page — full editor shell with ComponentPalette + LayerPanel + Canvas.
  *
  * T05: canvas panel + iframe renderer.
- * T06: LayerPanel (virtualized tree) + DndProvider (proxy-zone DnD).
+ * T06: LayerPanel (virtualized tree) + DndProvider (proxy-zone DnD)
+ *      + ComponentPalette (draggable new nodes).
  *
  * Uses a fixture document until persistence (T08) is wired.
+ * Initialises editorStore.doc with FIXTURE_DOCUMENT on mount so that
+ * useDropzones, LayerPanel, and CanvasHost all read from the same source.
  */
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import { DndProvider } from "@/components/dnd/DndProvider";
 import { CanvasHost } from "@/components/canvas/CanvasHost";
 import { LayerPanel } from "@/components/layer-panel/LayerPanel";
+import { ComponentPalette } from "@/components/palette/ComponentPalette";
 import { useEditorStore } from "@/stores/editorStore";
 import { FIXTURE_DOCUMENT } from "@/lib/fixtureDocument";
 
@@ -23,10 +27,14 @@ interface EditorPageProps {
 export default function EditorPage({ params }: EditorPageProps) {
   const { docId } = use(params);
 
-  const selectedIds = useEditorStore(s => s.selectedIds);
-  const setSelectedIds = useEditorStore(s => s.setSelectedIds);
+  const setDoc = useEditorStore(s => s.setDoc);
   const canUndo = useEditorStore(s => s.canUndo);
   const undo = useEditorStore(s => s.undo);
+
+  // Initialise the store with the fixture document once on mount.
+  useEffect(() => {
+    setDoc(FIXTURE_DOCUMENT);
+  }, [setDoc]);
 
   return (
     <DndProvider>
@@ -79,6 +87,9 @@ export default function EditorPage({ params }: EditorPageProps) {
 
         {/* Main layout */}
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+          {/* Component palette */}
+          <ComponentPalette />
+
           {/* Layer panel sidebar */}
           <aside style={{ width: 220, flexShrink: 0 }}>
             <LayerPanel />
@@ -86,12 +97,7 @@ export default function EditorPage({ params }: EditorPageProps) {
 
           {/* Canvas */}
           <main style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-            <CanvasHost
-              docId={docId}
-              doc={FIXTURE_DOCUMENT}
-              selectedIds={selectedIds}
-              onNodeSelect={setSelectedIds}
-            />
+            <CanvasHost docId={docId} />
           </main>
         </div>
       </div>

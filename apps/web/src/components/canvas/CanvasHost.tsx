@@ -1,39 +1,53 @@
 "use client";
 
 /**
- * CanvasHost — manages the canvas iframe, IframeBridge, and SelectionOverlay.
+ * CanvasHost — manages the canvas iframe, IframeBridge, SelectionOverlay,
+ * and proxy DnD elements (ProxyDropzone + InsertionIndicator).
  *
- * Responsibilities (SRP):
- * - Creates and tears down the IframeBridge lifecycle.
- * - Sends doc.replace when the iframe reports ready.
- * - Collects node.bounds from the iframe and positions the SelectionOverlay.
- * - Propagates node.click/hover to the parent via callbacks.
- * - Resizes the iframe on breakpoint change.
+ * Reads doc / selectedIds from editorStore and writes boundsMap /
+ * iframeOffset back into the store so useDropzones has geometry data.
+ *
+ * DnD proxy zones are mounted only while a drag is active (dragItem ≠ null)
+ * and only for legal drop targets (computed by useDropzones).
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { Document, NodeId } from "@pageforge/ir";
+import type { NodeId } from "@pageforge/ir";
 import type { NodeBounds } from "@pageforge/contracts";
 import { IframeBridge } from "./IframeBridge.js";
 import { SelectionOverlay } from "./SelectionOverlay.js";
 import { BreakpointBar, BREAKPOINTS } from "./BreakpointBar.js";
+import { ProxyDropzone } from "../dnd/ProxyDropzone.js";
+import { InsertionIndicator } from "../dnd/InsertionIndicator.js";
+import { useDropzones } from "../dnd/useDropzones.js";
+import { useEditorStore } from "../../stores/editorStore.js";
+import { useDndStore } from "../../stores/dndStore.js";
 
 interface CanvasHostProps {
   docId: string;
-  doc: Document;
-  selectedIds: NodeId[];
-  onNodeSelect: (ids: NodeId[]) => void;
 }
 
-export function CanvasHost({ docId, doc, selectedIds, onNodeSelect }: CanvasHostProps) {
+export function CanvasHost({ docId }: CanvasHostProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const bridgeRef = useRef<IframeBridge | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [boundsMap, setBoundsMap] = useState<Map<NodeId, NodeBounds>>(new Map());
   const [hoveredId, setHoveredId] = useState<NodeId | null>(null);
-  const [iframeOffset, setIframeOffset] = useState({ top: 0, left: 0 });
   const [activeWidth, setActiveWidth] = useState<number>(BREAKPOINTS[2].width);
+
+  // Store reads
+  const doc = useEditorStore(s => s.doc);
+  const selectedIds = useEditorStore(s => s.selectedIds);
+  const boundsMap = useEditorStore(s => s.boundsMap);
+  const iframeOffset = useEditorStore(s => s.iframeOffset);
+  const setSelectedIds = useEditorStore(s => s.setSelectedIds);
+  const setBoundsMap = useEditorStore(s => s.setBoundsMap);
+  const setIframeOffset = useEditorStore(s => s.setIframeOffset);
+
+  // DnD state
+  const dragItem = useDndStore(s => s.dragItem);
+  const activeZoneId = useDndStore(s => s.activeZoneId);
+  const dropzones = useDropzones(dragItem);
 
   // Sync iframe offset whenever the window resizes
   const updateOffset = useCallback(() => {
@@ -44,7 +58,7 @@ export function CanvasHost({ docId, doc, selectedIds, onNodeSelect }: CanvasHost
       top: rect.top - containerRect.top,
       left: rect.left - containerRect.left,
     });
-  }, []);
+  }, [setIframeOffset]);
 
   // Create bridge on mount, tear down on unmount
   useEffect(() => {
@@ -70,12 +84,13 @@ export function CanvasHost({ docId, doc, selectedIds, onNodeSelect }: CanvasHost
     });
 
     const unsubClick = bridge.on("node.click", msg => {
+      const current = useEditorStore.getState().selectedIds;
       const next: NodeId[] = msg.multi
-        ? selectedIds.includes(msg.id)
-          ? selectedIds.filter(id => id !== msg.id)
-          : [...selectedIds, msg.id]
+        ? current.includes(msg.id)
+          ? current.filter(id => id !== msg.id)
+          : [...current, msg.id]
         : [msg.id];
-      onNodeSelect(next);
+      setSelectedIds(next);
       bridge.send({ type: "selection.set", ids: next });
     });
 
@@ -93,7 +108,7 @@ export function CanvasHost({ docId, doc, selectedIds, onNodeSelect }: CanvasHost
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docId]);
 
-  // Re-send doc when it changes (after initial ready)
+  // Re-send doc when it changes
   useEffect(() => {
     bridgeRef.current?.send({ type: "doc.replace", doc });
   }, [doc]);
@@ -111,6 +126,8 @@ export function CanvasHost({ docId, doc, selectedIds, onNodeSelect }: CanvasHost
     bridgeRef.current?.send({ type: "breakpoint.set", minWidth: width });
     updateOffset();
   }
+
+  const activeZone = activeZoneId ? dropzones.find(z => z.id === activeZoneId) : null;
 
   return (
     <div
@@ -142,17 +159,35 @@ export function CanvasHost({ docId, doc, selectedIds, onNodeSelect }: CanvasHost
             }}
             title="Page canvas"
           />
-          <SelectionOverlay
-            selectedIds={selectedIds}
-            hoveredId={hoveredId}
-            boundsMap={boundsMap}
-            iframeOffset={iframeOffset}
-            onSelect={id => {
-              const next = [id];
-              onNodeSelect(next);
-              bridgeRef.current?.send({ type: "selection.set", ids: next });
-            }}
-          />
+
+          {/* Overlay: selection boxes + proxy DnD zones */}
+          <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+            <SelectionOverlay
+              selectedIds={selectedIds}
+              hoveredId={hoveredId}
+              boundsMap={boundsMap}
+              iframeOffset={iframeOffset}
+              onSelect={id => {
+                const next = [id];
+                setSelectedIds(next);
+                bridgeRef.current?.send({ type: "selection.set", ids: next });
+              }}
+            />
+
+            {/* Proxy dropzones — only mounted during an active drag */}
+            {dragItem &&
+              dropzones.map(zone => (
+                <ProxyDropzone
+                  key={zone.id}
+                  id={zone.id}
+                  rect={zone.rect}
+                  isActive={true}
+                />
+              ))}
+
+            {/* Insertion indicator for the currently hovered zone */}
+            {activeZone && <InsertionIndicator rect={activeZone.rect} />}
+          </div>
         </div>
       </div>
     </div>
