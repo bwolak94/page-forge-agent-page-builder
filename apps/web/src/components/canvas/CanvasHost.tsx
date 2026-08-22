@@ -20,6 +20,7 @@ import { BreakpointBar, BREAKPOINTS } from "./BreakpointBar.js";
 import { ProxyDropzone } from "../dnd/ProxyDropzone.js";
 import { InsertionIndicator } from "../dnd/InsertionIndicator.js";
 import { useDropzones } from "../dnd/useDropzones.js";
+import { AffectedHighlight } from "../chat/AffectedHighlight.js";
 import { useEditorStore } from "../../stores/editorStore.js";
 import { useDndStore } from "../../stores/dndStore.js";
 
@@ -187,6 +188,9 @@ export function CanvasHost({ docId }: CanvasHostProps) {
 
             {/* Insertion indicator for the currently hovered zone */}
             {activeZone && <InsertionIndicator rect={activeZone.rect} />}
+
+            {/* Agent patch highlights — flash affected nodes for 2 s */}
+            <AffectedHighlight />
           </div>
         </div>
       </div>

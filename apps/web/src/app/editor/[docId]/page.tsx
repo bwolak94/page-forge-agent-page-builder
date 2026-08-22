@@ -18,6 +18,7 @@ import { CanvasHost } from "@/components/canvas/CanvasHost";
 import { LayerPanel } from "@/components/layer-panel/LayerPanel";
 import { ComponentPalette } from "@/components/palette/ComponentPalette";
 import { Inspector } from "@/components/inspector/Inspector";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 import { useEditorStore } from "@/stores/editorStore";
 import { FIXTURE_DOCUMENT } from "@/lib/fixtureDocument";
 
@@ -103,6 +104,11 @@ export default function EditorPage({ params }: EditorPageProps) {
 
           {/* Inspector */}
           <Inspector />
+
+          {/* Chat panel */}
+          <aside style={{ width: 280, flexShrink: 0 }}>
+            <ChatPanel docId={docId} />
+          </aside>
         </div>
       </div>
     </DndProvider>
