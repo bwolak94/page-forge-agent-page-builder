@@ -17,6 +17,7 @@ import { DndProvider } from "@/components/dnd/DndProvider";
 import { CanvasHost } from "@/components/canvas/CanvasHost";
 import { LayerPanel } from "@/components/layer-panel/LayerPanel";
 import { ComponentPalette } from "@/components/palette/ComponentPalette";
+import { Inspector } from "@/components/inspector/Inspector";
 import { useEditorStore } from "@/stores/editorStore";
 import { FIXTURE_DOCUMENT } from "@/lib/fixtureDocument";
 
@@ -99,6 +100,9 @@ export default function EditorPage({ params }: EditorPageProps) {
           <main style={{ flex: 1, position: "relative", overflow: "hidden" }}>
             <CanvasHost docId={docId} />
           </main>
+
+          {/* Inspector */}
+          <Inspector />
         </div>
       </div>
     </DndProvider>
