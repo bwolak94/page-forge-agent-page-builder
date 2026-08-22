@@ -7,7 +7,7 @@
  * iframe's top/left offset. Renders hover indicator and selection boxes.
  */
 
-import type { NodeId } from "@pageforge/contracts";
+import type { NodeId } from "@pageforge/ir";
 import type { NodeBounds } from "@pageforge/contracts";
 
 interface RectProps {
