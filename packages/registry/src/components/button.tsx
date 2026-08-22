@@ -85,6 +85,8 @@ function Button({ label, variant, size, href, disabled }: ButtonProps) {
   );
 }
 
+export { Button };
+
 export const buttonDef: ComponentDef<ButtonProps> = {
   type: "Button",
   category: "interactive",

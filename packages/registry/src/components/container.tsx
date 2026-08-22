@@ -26,6 +26,8 @@ function Container({ maxWidth, padding, centered, children }: ContainerProps & {
   );
 }
 
+export { Container };
+
 export const containerDef: ComponentDef<ContainerProps> = {
   type: "Container",
   category: "layout",

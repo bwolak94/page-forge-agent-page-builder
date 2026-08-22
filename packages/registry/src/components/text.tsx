@@ -33,6 +33,8 @@ function Text({ text, size, weight, color, align }: TextProps) {
   return <p style={style}>{text}</p>;
 }
 
+export { Text };
+
 export const textDef: ComponentDef<TextProps> = {
   type: "Text",
   category: "typography",

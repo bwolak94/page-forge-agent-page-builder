@@ -45,6 +45,8 @@ function Stack({ direction, gap, align, justify, children }: StackProps & { chil
   return <div style={style}>{children}</div>;
 }
 
+export { Stack };
+
 export const stackDef: ComponentDef<StackProps> = {
   type: "Stack",
   category: "layout",

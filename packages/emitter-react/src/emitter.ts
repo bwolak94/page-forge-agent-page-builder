@@ -1,0 +1,149 @@
+/**
+ * emitter.ts — ReactEmitter: IR Document → Map<filename, content>.
+ *
+ * Patterns:
+ *   Visitor   — ReactEmitter implements NodeVisitor<string>.
+ *   Composite — recursive visit() builds JSX tree bottom-up.
+ *   Strategy  — caller can inject customVisitors per node type (OCP).
+ *   Template  — emit() handles traversal; subclass/visitor provides visitNode.
+ */
+
+import type { DocNode, Document } from "@pageforge/ir";
+import type { Registry } from "@pageforge/registry";
+import prettier from "prettier";
+import type { NodeVisitor, EmitContext } from "./visitor.js";
+import { ImportCollector } from "./import-resolver.js";
+import { serializeProps } from "./prop-serializer.js";
+import { buildJsxElement, indent } from "./ast-helpers.js";
+import {
+  buildPackageJson,
+  renderThemeCss,
+  TAILWIND_CONFIG_TEMPLATE,
+  TSCONFIG_TEMPLATE,
+} from "./project-template.js";
+
+// ---------------------------------------------------------------------------
+// EmitResult
+// ---------------------------------------------------------------------------
+
+export interface EmitResult {
+  /** filename (relative) → formatted file content */
+  files: Map<string, string>;
+}
+
+// ---------------------------------------------------------------------------
+// ReactEmitter
+// ---------------------------------------------------------------------------
+
+/**
+ * Visitor that converts each DocNode to a JSX string fragment.
+ * Call `emit(doc)` for the full pipeline.
+ */
+export class ReactEmitter implements NodeVisitor<string> {
+  constructor(
+    private readonly registry: Registry,
+    /** Per-type visitor overrides — Open/Closed extension point. */
+    private readonly customVisitors: Partial<Record<string, NodeVisitor<string>>> = {},
+  ) {}
+
+  // -------------------------------------------------------------------------
+  // Public API
+  // -------------------------------------------------------------------------
+
+  /**
+   * Emit a full Next.js project from a Document.
+   * Returns `Promise<EmitResult>` because prettier.format() is async.
+   */
+  async emit(doc: Document): Promise<EmitResult> {
+    const imports = new ImportCollector();
+    const ctx: EmitContext = { doc, registry: this.registry, imports };
+
+    const rootNode = doc.nodes[doc.root];
+    if (!rootNode) throw new Error(`Root node "${doc.root}" not found in document`);
+
+    const rootJsx = this.visit(rootNode, ctx);
+    const rawPage = this.buildPageFile(rootJsx, ctx);
+
+    const formattedPage = await prettier.format(rawPage, {
+      parser: "typescript",
+      printWidth: 100,
+      singleQuote: false,
+      trailingComma: "all",
+    });
+
+    const files = new Map<string, string>();
+    files.set("app/page.tsx", formattedPage);
+    files.set("styles/tokens.css", renderThemeCss(doc.theme));
+    files.set("tailwind.config.ts", TAILWIND_CONFIG_TEMPLATE);
+    files.set("package.json", buildPackageJson(ctx.imports.usedPackages()));
+    files.set("tsconfig.json", TSCONFIG_TEMPLATE);
+
+    return { files };
+  }
+
+  // -------------------------------------------------------------------------
+  // NodeVisitor<string>
+  // -------------------------------------------------------------------------
+
+  visit(node: DocNode, ctx: EmitContext): string {
+    // Strategy: check for a custom visitor first (OCP)
+    const custom = this.customVisitors[node.type];
+    if (custom) return custom.visit(node, ctx);
+
+    return this.defaultVisit(node, ctx);
+  }
+
+  // -------------------------------------------------------------------------
+  // Private helpers
+  // -------------------------------------------------------------------------
+
+  private defaultVisit(node: DocNode, ctx: EmitContext): string {
+    const def = ctx.registry[node.type];
+    if (!def) {
+      return `{/* Unknown component: ${node.type} */}`;
+    }
+
+    // Flyweight: ImportCollector deduplicates import paths
+    ctx.imports.add(node.type, def.importPath);
+
+    const propsStr = serializeProps(node.props, def.propsSchema);
+    const children = this.renderSlots(node, ctx);
+
+    return buildJsxElement(node.type, propsStr, children ? indent(children) : "");
+  }
+
+  /**
+   * Flatten all slots into a single children string.
+   * All named slots are treated as ordered children in JSX output.
+   * Slot order is preserved as defined in DocNode.slots.
+   */
+  private renderSlots(node: DocNode, ctx: EmitContext): string {
+    return Object.values(node.slots)
+      .flat()
+      .map(id => {
+        const child = ctx.doc.nodes[id];
+        if (!child) return "";
+        return this.visit(child, ctx);
+      })
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  /** Wrap the root JSX in an exported Next.js page function. */
+  private buildPageFile(rootJsx: string, ctx: EmitContext): string {
+    const importStatements = ctx.imports.toStatements();
+    const indentedRoot = indent(rootJsx, 4);
+
+    return `// Auto-generated by PageForge React Emitter
+// Do not edit — regenerate from your PageForge document
+
+${importStatements}
+
+export default function HomePage() {
+  return (
+${indentedRoot}
+  );
+}
+`;
+  }
+}

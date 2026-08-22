@@ -71,6 +71,8 @@ function Nav({ logo, items, sticky, transparent, children }: NavProps & { childr
   );
 }
 
+export { Nav };
+
 export const navDef: ComponentDef<NavProps> = {
   type: "Nav",
   category: "navigation",

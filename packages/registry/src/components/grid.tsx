@@ -23,6 +23,8 @@ function Grid({ cols, gap, responsive, children }: GridProps & { children?: Reac
   return <div style={style}>{children}</div>;
 }
 
+export { Grid };
+
 export const gridDef: ComponentDef<GridProps> = {
   type: "Grid",
   category: "layout",

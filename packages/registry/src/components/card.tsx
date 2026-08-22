@@ -44,6 +44,8 @@ function Card({
   return <div style={style}>{children}</div>;
 }
 
+export { Card };
+
 export const cardDef: ComponentDef<CardProps> = {
   type: "Card",
   category: "layout",
