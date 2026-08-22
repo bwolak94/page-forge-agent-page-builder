@@ -60,6 +60,8 @@ function Hero({ headline, subheadline, layout, children }: HeroProps & { childre
   );
 }
 
+export { Hero };
+
 export const heroDef: ComponentDef<HeroProps> = {
   type: "Hero",
   category: "layout",

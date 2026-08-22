@@ -8,8 +8,8 @@
  */
 
 import { create } from "zustand";
-import type { Document, NodeId } from "@pageforge/ir";
-import { EMPTY_DOCUMENT } from "@pageforge/ir";
+import type { Document, NodeId, JsonPatch } from "@pageforge/ir";
+import { EMPTY_DOCUMENT, applyPatches } from "@pageforge/ir";
 import type { NodeBounds } from "@pageforge/contracts";
 import { executeCommand, UndoStack } from "@pageforge/commands";
 import { canAccept, REGISTRY } from "@pageforge/registry";
@@ -26,15 +26,25 @@ const registryInterface = {
 
 export interface EditorStore {
   doc: Document;
+  version: number;
   selectedIds: NodeId[];
   boundsMap: Map<NodeId, NodeBounds>;
   iframeOffset: { top: number; left: number };
   canUndo: boolean;
+  /** Node IDs affected by the last agent patch — used for highlight animation. */
+  affected: NodeId[];
 
   setDoc: (doc: Document) => void;
   setSelectedIds: (ids: NodeId[]) => void;
   setBoundsMap: (map: Map<NodeId, NodeBounds>) => void;
   setIframeOffset: (offset: { top: number; left: number }) => void;
+  setAffected: (ids: NodeId[]) => void;
+
+  /**
+   * Apply an agent-generated patch received over SSE.
+   * Updates doc and version atomically.
+   */
+  applyServerPatch: (patches: JsonPatch[], seq: number) => void;
 
   /** Execute a command by kind + raw args. Updates doc on success. */
   executeCmd: (kind: string, args: unknown) => void;
@@ -43,15 +53,24 @@ export interface EditorStore {
 
 export const useEditorStore = create<EditorStore>()((set, get) => ({
   doc: EMPTY_DOCUMENT,
+  version: 0,
   selectedIds: [],
   boundsMap: new Map(),
   iframeOffset: { top: 0, left: 0 },
   canUndo: false,
+  affected: [],
 
   setDoc: doc => set({ doc }),
   setSelectedIds: ids => set({ selectedIds: ids }),
   setBoundsMap: map => set({ boundsMap: map }),
   setIframeOffset: offset => set({ iframeOffset: offset }),
+  setAffected: ids => set({ affected: ids }),
+
+  applyServerPatch: (patches, seq) => {
+    const { doc } = get();
+    const nextDoc = applyPatches(doc, patches);
+    set({ doc: nextDoc, version: seq });
+  },
 
   executeCmd: (kind, args) => {
     const { doc } = get();

@@ -33,6 +33,8 @@ function Image({ src, alt, width, height, objectFit }: ImageProps) {
   );
 }
 
+export { Image };
+
 export const imageDef: ComponentDef<ImageProps> = {
   type: "Image",
   category: "media",

@@ -32,6 +32,8 @@ function Heading({ level, text, align, color }: HeadingProps) {
   return <Tag style={style}>{text}</Tag>;
 }
 
+export { Heading };
+
 export const headingDef: ComponentDef<HeadingProps> = {
   type: "Heading",
   category: "typography",

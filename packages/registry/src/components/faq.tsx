@@ -50,6 +50,8 @@ function FAQ({ items, openFirst }: FAQProps) {
   );
 }
 
+export { FAQ };
+
 export const faqDef: ComponentDef<FAQProps> = {
   type: "FAQ",
   category: "commerce",

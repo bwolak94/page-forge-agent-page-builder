@@ -22,6 +22,8 @@ function Page({ lang, dir, children }: PageProps & { children?: ReactNode }) {
   );
 }
 
+export { Page };
+
 export const pageDef: ComponentDef<PageProps> = {
   type: "Page",
   category: "layout",

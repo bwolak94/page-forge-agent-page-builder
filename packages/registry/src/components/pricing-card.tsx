@@ -80,6 +80,8 @@ function PricingCard({
   );
 }
 
+export { PricingCard };
+
 export const pricingCardDef: ComponentDef<PricingCardProps> = {
   type: "PricingCard",
   category: "commerce",

@@ -71,6 +71,8 @@ function Footer({ columns, copyright, children }: FooterProps & { children?: Rea
   );
 }
 
+export { Footer };
+
 export const footerDef: ComponentDef<FooterProps> = {
   type: "Footer",
   category: "navigation",

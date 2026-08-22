@@ -7,6 +7,66 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./components/page": {
+      "import": "./dist/components/page.js",
+      "types": "./dist/components/page.d.ts"
+    },
+    "./components/section": {
+      "import": "./dist/components/section.js",
+      "types": "./dist/components/section.d.ts"
+    },
+    "./components/container": {
+      "import": "./dist/components/container.js",
+      "types": "./dist/components/container.d.ts"
+    },
+    "./components/grid": {
+      "import": "./dist/components/grid.js",
+      "types": "./dist/components/grid.d.ts"
+    },
+    "./components/stack": {
+      "import": "./dist/components/stack.js",
+      "types": "./dist/components/stack.d.ts"
+    },
+    "./components/heading": {
+      "import": "./dist/components/heading.js",
+      "types": "./dist/components/heading.d.ts"
+    },
+    "./components/text": {
+      "import": "./dist/components/text.js",
+      "types": "./dist/components/text.d.ts"
+    },
+    "./components/button": {
+      "import": "./dist/components/button.js",
+      "types": "./dist/components/button.d.ts"
+    },
+    "./components/image": {
+      "import": "./dist/components/image.js",
+      "types": "./dist/components/image.d.ts"
+    },
+    "./components/card": {
+      "import": "./dist/components/card.js",
+      "types": "./dist/components/card.d.ts"
+    },
+    "./components/pricing-card": {
+      "import": "./dist/components/pricing-card.js",
+      "types": "./dist/components/pricing-card.d.ts"
+    },
+    "./components/nav": {
+      "import": "./dist/components/nav.js",
+      "types": "./dist/components/nav.d.ts"
+    },
+    "./components/hero": {
+      "import": "./dist/components/hero.js",
+      "types": "./dist/components/hero.d.ts"
+    },
+    "./components/footer": {
+      "import": "./dist/components/footer.js",
+      "types": "./dist/components/footer.d.ts"
+    },
+    "./components/faq": {
+      "import": "./dist/components/faq.js",
+      "types": "./dist/components/faq.d.ts"
     }
   },
   "main": "./dist/index.js",

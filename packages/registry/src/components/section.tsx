@@ -25,6 +25,8 @@ function Section({ padding, background, children }: SectionProps & { children?: 
   );
 }
 
+export { Section };
+
 export const sectionDef: ComponentDef<SectionProps> = {
   type: "Section",
   category: "layout",
