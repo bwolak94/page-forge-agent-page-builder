@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`registryManifest > is stable across runs (snapshot) 1`] = `
+"Button · interactive · Call-to-action button or link with variant, size, and optional href.
+  props: label(str) variant(primary|secondary|ghost|outline) size(sm|md|lg) href(str) disabled(bool)
+  parents: Container Stack Card Hero Nav PricingCard
+
+Card · layout · Surface card with configurable padding, shadow, border, and radius.
+  props: padding(xs|sm|md|lg|xl|2xl) shadow(none|sm|md|lg) radius(none|sm|md|lg) border(bool)
+  slots: header→[Heading]  body→[*]  footer→[Button,Text]
+  parents: Grid Container Section
+
+Container · layout · Width-constrained content wrapper with optional centering and padding.
+  props: maxWidth(str) padding(xs|sm|md|lg|xl|2xl) centered(bool)
+  slots: children→[*]
+  parents: Section Grid Stack Card
+
+FAQ · commerce · Accordion FAQ with question/answer pairs and optional open-first behaviour.
+  props: items(obj[]) openFirst(bool)
+  parents: Section Container
+
+Footer · navigation · Site footer with link columns and copyright text.
+  props: columns(obj[]) copyright(str)
+  slots: links→[Text,Button]
+  parents: Page
+
+Grid · layout · CSS grid with configurable columns, gap, and responsive collapse.
+  props: cols(num) gap(xs|sm|md|lg|xl|2xl) responsive(bool)
+  slots: children→[Card,PricingCard,Container,Stack]
+  parents: Section Container
+
+Heading · typography · Semantic heading element (h1–h6) with scale and color tokens.
+  props: level(num) text(str) align(left|center|right) color(str)
+  parents: Section Container Stack Card Hero
+
+Hero · layout · Hero section with headline, subheadline, CTA buttons, and optional media.
+  props: headline(str) subheadline(str) layout(centered|split)
+  slots: cta→[Button,Stack]  media→[Image]
+  parents: Page Section
+
+Image · media · Responsive image with alt text, explicit dimensions, and object-fit control.
+  props: src(str) alt(str) width(num) height(num) objectFit(cover|contain|fill|none|scale-down)
+  parents: Section Container Stack Card Hero
+
+Nav · navigation · Site navigation bar with logo, links, optional sticky behaviour, and CTA actions.
+  props: logo(str) items(obj[]) sticky(bool) transparent(bool)
+  slots: actions→[Button]
+  parents: Page
+
+Page · layout · Root page wrapper — sets language, text direction, and background.
+  props: title(str) lang(str) dir(ltr|rtl)
+  slots: children→[Section,Nav,Footer,Hero]
+  parents: root-only
+
+PricingCard · commerce · Pricing plan card with title, price, feature list, and CTA slot.
+  props: title(str) price(str) period(mo|yr) features(str[]) highlighted(bool)
+  slots: cta→[Button]
+  parents: Grid Container Section
+
+Section · layout · Full-width page section with optional background and vertical padding.
+  props: name(str) padding(xs|sm|md|lg|xl|2xl) background(str)
+  slots: children→[Container,Grid,Stack,Heading,Text,Hero,FAQ]
+  parents: Page
+
+Stack · layout · Flexbox stack — arrange children in a row or column with gap and alignment.
+  props: direction(row|col) gap(xs|sm|md|lg|xl|2xl) align(start|center|end|stretch) justify(start|center|end|between|around)
+  slots: children→[*]
+  parents: Section Container Grid Card
+
+Text · typography · Paragraph text with size, weight, color, and alignment tokens.
+  props: text(str) size(xs|sm|base|lg|xl) weight(normal|medium|semibold|bold) color(str) align(left|center|right)
+  parents: Section Container Stack Card Hero FAQ"
+`;
