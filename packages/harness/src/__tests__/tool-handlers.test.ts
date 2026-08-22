@@ -65,7 +65,8 @@ describe("queryTree", () => {
     const result = await toolHandlers.queryTree({ maxDepth: 3, maxNodes: 50 }, ctx);
     expect(result.ok).toBe(true);
     expect(result.tree).toBeDefined();
-    expect((result.tree as { type: string }).type).toBe("Page");
+    // T10: renderTreeSummary returns a string in XML-like format
+    expect(result.tree as string).toContain("<Page");
   });
 
   it("respects focusId parameter", async () => {

@@ -13,11 +13,11 @@
 
 import { streamText, tool } from "ai";
 import type { CoreMessage } from "ai";
-import type { Document } from "@pageforge/ir";
+import type { Document, NodeId } from "@pageforge/ir";
 import type { RegistryInterface } from "@pageforge/commands";
 import type { Registry } from "@pageforge/registry";
 import { canAccept } from "@pageforge/registry";
-import { buildContext } from "./context.js";
+import { buildContext, type SystemPromptParts } from "./context.js";
 import { TOOL_DEFINITIONS } from "./tools.js";
 import { toolHandlers, type HarnessEvent, type ToolContext } from "./tool-handlers.js";
 import type { LLMAdapter } from "./adapters/llm.adapter.js";
@@ -55,6 +55,11 @@ export interface LoopContext {
   documentId: string;
   /** Loop configuration overrides. */
   config?: LoopConfig;
+  /**
+   * Node to focus-expand in the tree summary.
+   * Typically the currently selected node in the editor.
+   */
+  focusNodeId?: NodeId;
 }
 
 // ---------------------------------------------------------------------------
@@ -120,9 +125,13 @@ export async function runLoop(ctx: LoopContext): Promise<void> {
 
   let steps = 0;
 
+  const contextParts: SystemPromptParts = buildContext(ctx.doc, ctx.registry, {
+    focusId: ctx.focusNodeId,
+  });
+
   const result = streamText({
     model: ctx.llm.model,
-    system: buildContext(ctx.doc, ctx.registry),
+    system: contextParts.systemText,
     messages: ctx.history,
     tools: executableTools,
     maxSteps,

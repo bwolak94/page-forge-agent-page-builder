@@ -81,9 +81,11 @@ export const toolHandlers = {
     ctx: ToolContext,
   ): Promise<ToolResult> => {
     const tree = renderTreeSummary(ctx.docRef.current, {
-      focusId: args.focusId,
+      focusId: args.focusId as NodeId | undefined,
       maxDepth: args.maxDepth ?? 4,
       maxNodes: args.maxNodes ?? 80,
+      focusDepth: (args.maxDepth ?? 4) + 2,
+      siblingThreshold: 4,
     });
     return ok({ tree });
   },
