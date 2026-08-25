@@ -33,7 +33,7 @@ export type DuplicateNodeArgs = z.infer<typeof duplicateNodeSchema>;
 // ---------------------------------------------------------------------------
 
 function findParentSlot(
-  doc: Document | Draft<Document>,
+  doc: Document,
   id: NodeId,
 ): { parentId: NodeId; slot: string; index: number } | null {
   for (const [pid, pnode] of Object.entries(doc.nodes) as [NodeId, (typeof doc.nodes)[NodeId]][]) {
@@ -47,7 +47,7 @@ function findParentSlot(
 }
 
 function cloneSubtree(
-  doc: Document | Draft<Document>,
+  doc: Document,
   rootId: NodeId,
 ): { clonedNodes: DocNode[]; newRootId: NodeId } {
   const subtreeIds: NodeId[] = [rootId, ...descendants(doc as Document, rootId)];
@@ -124,11 +124,14 @@ export const duplicateNode: Command<DuplicateNodeArgs> = {
   },
 
   execute(draft: Draft<Document>, args: DuplicateNodeArgs) {
-    const { clonedNodes, newRootId } = cloneSubtree(draft, args.id);
+    const doc = draft as unknown as Document;
+    const { clonedNodes, newRootId } = cloneSubtree(doc, args.id);
+
+    const mutableNodes = draft.nodes as unknown as Record<string, { id: NodeId; type: string; props: Record<string, unknown>; slots: Record<string, NodeId[]> } | undefined>;
 
     // Add all cloned nodes to the flat map
     for (const node of clonedNodes) {
-      draft.nodes[node.id] = node;
+      mutableNodes[node.id] = node as unknown as typeof mutableNodes[string];
     }
 
     // Determine insertion location
@@ -142,7 +145,7 @@ export const duplicateNode: Command<DuplicateNodeArgs> = {
       targetIndex = args.targetIndex ?? -1;
     } else {
       // Default: insert after original in same parent slot
-      const loc = findParentSlot(draft, args.id);
+      const loc = findParentSlot(doc, args.id);
       if (!loc) return; // root — guarded by validate
 
       targetParentId = loc.parentId;
@@ -150,7 +153,7 @@ export const duplicateNode: Command<DuplicateNodeArgs> = {
       targetIndex = loc.index + 1;
     }
 
-    const targetNode = draft.nodes[targetParentId];
+    const targetNode = mutableNodes[targetParentId];
     if (!targetNode) return;
 
     if (!targetNode.slots[targetSlot]) {

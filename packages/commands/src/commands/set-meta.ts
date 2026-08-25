@@ -44,7 +44,8 @@ export const setMeta: Command<SetMetaArgs> = {
   },
 
   execute(draft: Draft<Document>, args: SetMetaArgs) {
-    const node = draft.nodes[args.id];
+    const nodes = draft.nodes as unknown as Record<string, { meta?: Record<string, unknown> } | undefined>;
+    const node = nodes[args.id];
     if (!node) return; // guarded by validate
 
     node.meta = { ...node.meta, ...args.meta };

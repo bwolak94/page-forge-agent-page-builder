@@ -83,8 +83,8 @@ export const deleteNode: Command<DeleteNodeArgs> = {
   },
 
   execute(draft: Draft<Document>, args: DeleteNodeArgs) {
-    const node = draft.nodes[args.id];
-    if (!node) return; // guarded by validate
+    const mutableNodes = draft.nodes as unknown as Record<string, { slots: Record<string, string[]> } | undefined>;
+    if (!mutableNodes[args.id]) return; // guarded by validate
 
     // Collect all descendant ids before removing anything
     const descendantIds = descendants(draft as unknown as Document, args.id);
@@ -92,7 +92,7 @@ export const deleteNode: Command<DeleteNodeArgs> = {
     // Remove from parent slot
     const loc = findParentSlot(draft as unknown as Document, args.id);
     if (loc) {
-      const parentNode = draft.nodes[loc.parentId];
+      const parentNode = mutableNodes[loc.parentId];
       const slot = parentNode?.slots[loc.slot];
       if (slot) {
         slot.splice(loc.index, 1);

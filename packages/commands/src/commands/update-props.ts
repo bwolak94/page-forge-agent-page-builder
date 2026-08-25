@@ -49,14 +49,16 @@ export const updateProps: Command<UpdatePropsArgs> = {
   },
 
   execute(draft: Draft<Document>, args: UpdatePropsArgs) {
-    const node = draft.nodes[args.id];
+    const doc = draft as unknown as Document;
+    const node = doc.nodes[args.id];
     if (!node) return; // guarded by validate
 
+    const props = node.props as Record<string, unknown>;
     for (const [key, value] of Object.entries(args.patch)) {
       if (value === undefined) {
-        delete (node.props as Record<string, unknown>)[key];
+        delete props[key];
       } else {
-        (node.props as Record<string, unknown>)[key] = value;
+        props[key] = value;
       }
     }
   },

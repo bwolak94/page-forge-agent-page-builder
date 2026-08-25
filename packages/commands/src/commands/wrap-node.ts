@@ -34,7 +34,7 @@ export type WrapNodeArgs = z.infer<typeof wrapNodeSchema>;
 // ---------------------------------------------------------------------------
 
 function findParentSlot(
-  doc: Document | Draft<Document>,
+  doc: Document,
   id: NodeId,
 ): { parentId: NodeId; slot: string; index: number } | null {
   for (const [pid, pnode] of Object.entries(doc.nodes) as [NodeId, (typeof doc.nodes)[NodeId]][]) {
@@ -78,13 +78,15 @@ export const wrapNode: Command<WrapNodeArgs> = {
   },
 
   execute(draft: Draft<Document>, args: WrapNodeArgs) {
-    const loc = findParentSlot(draft, args.id);
+    const doc = draft as unknown as Document;
+    const loc = findParentSlot(doc, args.id);
     if (!loc) return; // node is root — guarded by validate
 
     const wrapperId: NodeId = nodeId(nanoid());
 
     // Create wrapper node with the original node as its child
-    draft.nodes[wrapperId] = {
+    const mutableNodes = draft.nodes as unknown as Record<string, { id: NodeId; type: string; props: Record<string, unknown>; slots: Record<string, NodeId[]> } | undefined>;
+    mutableNodes[wrapperId] = {
       id: wrapperId,
       type: args.wrapperType,
       props: {},
@@ -92,7 +94,7 @@ export const wrapNode: Command<WrapNodeArgs> = {
     };
 
     // Replace original node with wrapper in parent's slot
-    const parentNode = draft.nodes[loc.parentId];
+    const parentNode = mutableNodes[loc.parentId];
     const parentSlot = parentNode?.slots[loc.slot];
     if (!parentSlot) return;
 

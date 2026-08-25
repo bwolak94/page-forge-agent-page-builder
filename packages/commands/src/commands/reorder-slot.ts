@@ -82,7 +82,8 @@ export const reorderSlot: Command<ReorderSlotArgs> = {
   },
 
   execute(draft: Draft<Document>, args: ReorderSlotArgs) {
-    const parent = draft.nodes[args.parentId];
+    const nodes = draft.nodes as unknown as Record<string, { slots: Record<string, string[]> } | undefined>;
+    const parent = nodes[args.parentId];
     const slot = parent?.slots[args.slot];
     if (!slot) return; // guarded by validate
 
