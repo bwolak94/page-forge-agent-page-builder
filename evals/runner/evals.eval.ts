@@ -27,8 +27,10 @@ import type { EvalResult, EvalReport } from "./run-eval.js";
 
 const BASELINE_PASS_RATE = 0.75; // 75% — CI threshold
 
-// Allow filtering to a subset of tasks for faster dev iteration
-const EVAL_FILTER = process.env["EVAL_FILTER"]?.split(",").map(s => s.trim());
+// Allow filtering to a subset of tasks for faster dev iteration.
+// Treat empty string (GitHub Actions default for unset workflow_dispatch input) as no filter.
+const rawFilter = process.env["EVAL_FILTER"]?.trim();
+const EVAL_FILTER = rawFilter ? rawFilter.split(",").map(s => s.trim()).filter(Boolean) : null;
 const tasks = EVAL_FILTER
   ? EVAL_DATASET.filter(t => EVAL_FILTER.includes(t.id))
   : EVAL_DATASET;
