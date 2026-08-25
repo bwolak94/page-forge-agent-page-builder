@@ -27,6 +27,14 @@ import { runLoop, AnthropicAdapter, NoopEventLogAdapter } from "@pageforge/harne
 import type { HarnessEvent } from "@pageforge/harness";
 import type { CoreMessage } from "ai";
 import { authMiddleware } from "../middleware/auth.js";
+import { createLoopTrace } from "../observability/langfuse.js";
+import {
+  toolCallsPerTask,
+  costPerSessionUsd,
+  firstPatchLatencyMs,
+  toolErrorTotal,
+  estimateSessionCost,
+} from "../observability/metrics.js";
 
 // ---------------------------------------------------------------------------
 // Lazy singleton adapter — reused across requests
@@ -138,14 +146,33 @@ chatRoute.post("/chat/:docId", authMiddleware, async c => {
     { role: "user" as const, content: message },
   ];
 
+  const session = c.get("session");
+
   return streamSSE(c, async stream => {
-    const emit = (event: HarnessEvent) =>
-      stream.writeSSE({ data: JSON.stringify(event) });
+    const requestStart = Date.now();
+    let firstPatchEmitted = false;
+    let toolCallCount = 0;
+
+    // Langfuse trace — one per /chat request (one agent turn)
+    const trace = createLoopTrace(convId, docId, session.userId);
+
+    const emit = (event: HarnessEvent) => {
+      // Record first-patch latency
+      if (event.type === "doc.patch" && !firstPatchEmitted) {
+        firstPatchEmitted = true;
+        firstPatchLatencyMs.observe(Date.now() - requestStart);
+      }
+      if (event.type === "doc.patch") toolCallCount++;
+      if (event.type === "agent.error") {
+        toolErrorTotal.inc({ tool: "loop", error_kind: "agent_error" });
+      }
+      return stream.writeSSE({ data: JSON.stringify(event) });
+    };
 
     try {
       const eventLog = new DrizzleEventLogAdapter(db, docId, version);
 
-      await runLoop({
+      const result = await runLoop({
         doc,
         registry: REGISTRY,
         history,
@@ -159,6 +186,16 @@ chatRoute.post("/chat/:docId", authMiddleware, async c => {
         },
       });
 
+      // Record session-level Prometheus metrics
+      const usage = result.usage as { promptTokens?: number; completionTokens?: number };
+      const cost = estimateSessionCost(usage);
+      costPerSessionUsd.observe(cost);
+      toolCallsPerTask.observe(toolCallCount);
+
+      // Score in Langfuse (tool efficiency proxy)
+      trace.score({ name: "tool_calls", value: toolCallCount });
+      trace.score({ name: "cost_usd", value: cost });
+
       // Persist assistant turn marker in conversation
       await convRepo.addMessage({
         conversationId: convId,
@@ -166,6 +203,7 @@ chatRoute.post("/chat/:docId", authMiddleware, async c => {
         content: "[agent turn complete]",
       });
     } catch (err) {
+      toolErrorTotal.inc({ tool: "loop", error_kind: "unexpected" });
       emit({
         type: "agent.error",
         message: err instanceof Error ? err.message : String(err),

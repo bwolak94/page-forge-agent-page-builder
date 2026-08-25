@@ -18,9 +18,17 @@
     "@pageforge/harness": "workspace:*",
     "@pageforge/ir": "workspace:*",
     "@pageforge/registry": "workspace:*",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.56.0",
+    "@opentelemetry/instrumentation-http": "^0.56.0",
+    "@opentelemetry/resources": "^1.29.0",
+    "@opentelemetry/sdk-node": "^0.56.0",
+    "@opentelemetry/sdk-trace-base": "^1.29.0",
+    "@opentelemetry/semantic-conventions": "^1.29.0",
     "ai": "^4.3.0",
     "bullmq": "^5.0.0",
     "hono": "^4.6.0",
+    "langfuse": "^3.38.0",
+    "prom-client": "^15.1.3",
     "zod": "^3.23.0"
   },
   "devDependencies": {

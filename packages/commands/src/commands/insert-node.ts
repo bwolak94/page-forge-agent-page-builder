@@ -80,7 +80,8 @@ export const insertNode: Command<InsertNodeArgs> = {
     (draft.nodes as unknown as Record<NodeId, DocNode>)[nid] = newNode;
 
     // Ensure the slot array exists on the parent
-    const parent = draft.nodes[args.parentId];
+    const mutableNodes = draft.nodes as unknown as Record<string, { slots: Record<string, string[]> } | undefined>;
+    const parent = mutableNodes[args.parentId];
     if (!parent) return; // guarded by validate
 
     if (!parent.slots[args.slot]) {

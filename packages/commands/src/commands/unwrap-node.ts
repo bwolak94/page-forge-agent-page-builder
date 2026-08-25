@@ -28,7 +28,7 @@ export type UnwrapNodeArgs = z.infer<typeof unwrapNodeSchema>;
 // ---------------------------------------------------------------------------
 
 function findParentSlot(
-  doc: Document | Draft<Document>,
+  doc: Document,
   id: NodeId,
 ): { parentId: NodeId; slot: string; index: number } | null {
   for (const [pid, pnode] of Object.entries(doc.nodes) as [NodeId, (typeof doc.nodes)[NodeId]][]) {
@@ -42,7 +42,7 @@ function findParentSlot(
 }
 
 function getSingleChild(
-  doc: Document | Draft<Document>,
+  doc: Document,
   id: NodeId,
 ): NodeId | null {
   const node = doc.nodes[id];
@@ -99,20 +99,22 @@ export const unwrapNode: Command<UnwrapNodeArgs> = {
   },
 
   execute(draft: Draft<Document>, args: UnwrapNodeArgs) {
-    const childId = getSingleChild(draft, args.id);
+    const doc = draft as unknown as Document;
+    const childId = getSingleChild(doc, args.id);
     if (!childId) return; // guarded by validate
 
-    const loc = findParentSlot(draft, args.id);
+    const loc = findParentSlot(doc, args.id);
     if (!loc) return; // guarded by validate (not root)
 
     // Place child at the wrapper's position in grandparent's slot
-    const grandparentNode = draft.nodes[loc.parentId];
+    const mutableNodes = draft.nodes as unknown as Record<string, { slots: Record<string, NodeId[]> } | undefined>;
+    const grandparentNode = mutableNodes[loc.parentId];
     const grandparentSlot = grandparentNode?.slots[loc.slot];
     if (!grandparentSlot) return;
 
     grandparentSlot[loc.index] = childId;
 
     // Delete the wrapper node from the flat map
-    delete draft.nodes[args.id];
+    delete mutableNodes[args.id];
   },
 };

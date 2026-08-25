@@ -1,0 +1,24 @@
+{
+  "name": "evals",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "eval": "vitest run --reporter=verbose",
+    "eval:ci": "vitest run --reporter=verbose --reporter=json --outputFile=results/eval-report.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.35.0",
+    "@pageforge/harness": "workspace:*",
+    "@pageforge/ir": "workspace:*",
+    "@pageforge/registry": "workspace:*",
+    "langfuse": "^3.38.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "fast-check": "^3.23.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}
