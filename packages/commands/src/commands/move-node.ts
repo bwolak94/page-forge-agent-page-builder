@@ -36,11 +36,12 @@ function findParentSlot(
   doc: Document | Draft<Document>,
   id: NodeId,
 ): { parentId: NodeId; slot: string; index: number } | null {
-  for (const [pid, pnode] of Object.entries(doc.nodes) as [NodeId, (typeof doc.nodes)[NodeId]][]) {
+  const nodes = doc.nodes as Record<string, { slots: Record<string, NodeId[]> }>;
+  for (const [pid, pnode] of Object.entries(nodes)) {
     if (!pnode) continue;
     for (const [slot, childIds] of Object.entries(pnode.slots)) {
       const idx = childIds.indexOf(id);
-      if (idx !== -1) return { parentId: pid, slot, index: idx };
+      if (idx !== -1) return { parentId: pid as NodeId, slot, index: idx };
     }
   }
   return null;
