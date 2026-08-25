@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "eval": "vitest run --reporter=verbose",
-    "eval:ci": "vitest run --reporter=json --outputFile=results/eval-report.json",
+    "eval:ci": "vitest run --reporter=verbose --reporter=json --outputFile=results/eval-report.json",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

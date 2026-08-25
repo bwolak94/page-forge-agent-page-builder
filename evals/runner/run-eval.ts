@@ -169,7 +169,11 @@ export async function runEvalTask(task: EvalTask): Promise<EvalResult> {
       error: err instanceof Error ? err.message : String(err),
     };
   } finally {
-    await langfuse.flushAsync();
+    try {
+      await langfuse.flushAsync();
+    } catch {
+      // Langfuse network failures must never fail the eval
+    }
   }
 }
 

@@ -23,7 +23,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
       LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
-      LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+      LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_HOST }}
       EVAL_FILTER: ${{ github.event.inputs.eval_filter }}
       GIT_SHA: ${{ github.sha }}
 
@@ -49,6 +49,17 @@ jobs:
       - name: Run evals
         run: pnpm eval:ci
         # CI fails if pass rate < 75% (enforced inside the vitest afterAll hook)
+
+      - name: Print eval JSON report
+        if: always()
+        run: |
+          REPORT=$(ls evals/results/eval-*.json 2>/dev/null | tail -1)
+          if [ -n "$REPORT" ]; then
+            echo "=== Eval Report: $REPORT ==="
+            cat "$REPORT"
+          else
+            echo "No custom eval report found (vitest report only)"
+          fi
 
       - name: Upload eval report
         uses: actions/upload-artifact@v4
