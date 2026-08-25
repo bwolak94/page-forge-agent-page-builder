@@ -8,7 +8,9 @@
     "test": "turbo test",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
-    "dev": "turbo dev"
+    "dev": "turbo dev",
+    "eval": "pnpm --filter evals eval",
+    "eval:ci": "pnpm --filter evals eval:ci"
   },
   "devDependencies": {
     "turbo": "^2.3.0",

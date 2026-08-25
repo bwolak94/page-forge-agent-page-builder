@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: "pageforge"
+    orgId: 1
+    folder: "PageForge"
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/dashboards

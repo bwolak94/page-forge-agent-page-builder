@@ -104,7 +104,16 @@ function createExecutableTools(toolCtx: ToolContext) {
  * Streams text chunks and doc.patch events to the client via sseEmit.
  * Resolves when the model finishes (text response, no more tool calls, or maxSteps).
  */
-export async function runLoop(ctx: LoopContext): Promise<void> {
+export interface LoopResult {
+  /** Final document state after all tool mutations. */
+  doc: Document;
+  /** Total number of LLM steps executed. */
+  steps: number;
+  /** Aggregated token usage across all steps. */
+  usage: Awaited<ReturnType<typeof streamText>>["usage"] extends Promise<infer U> ? U : unknown;
+}
+
+export async function runLoop(ctx: LoopContext): Promise<LoopResult> {
   const maxSteps = ctx.config?.maxSteps ?? 24;
 
   // Shared mutable document reference — all tool handlers write here.
@@ -149,4 +158,6 @@ export async function runLoop(ctx: LoopContext): Promise<void> {
 
   const usage = await result.usage;
   ctx.sseEmit({ type: "agent.done", steps, usage });
+
+  return { doc: docRef.current, steps, usage };
 }

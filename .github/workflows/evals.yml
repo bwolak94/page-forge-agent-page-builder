@@ -1,0 +1,61 @@
+name: Agent Evals
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Allow manual trigger for ad-hoc eval runs
+  workflow_dispatch:
+    inputs:
+      eval_filter:
+        description: "Comma-separated task IDs to run (empty = all 20)"
+        required: false
+        default: ""
+
+jobs:
+  evals:
+    name: Structural Assertion Evals
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+      LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+      LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+      EVAL_FILTER: ${{ github.event.inputs.eval_filter }}
+      GIT_SHA: ${{ github.sha }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace packages
+        run: pnpm build --filter=@pageforge/ir --filter=@pageforge/registry --filter=@pageforge/commands --filter=@pageforge/harness
+
+      - name: Run evals
+        run: pnpm eval:ci
+        # CI fails if pass rate < 75% (enforced inside the vitest afterAll hook)
+
+      - name: Upload eval report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report-${{ github.sha }}
+          path: evals/results/
+          retention-days: 30

@@ -7,7 +7,7 @@
 
 // Loop
 export { runLoop } from "./loop.js";
-export type { LoopContext, LoopConfig } from "./loop.js";
+export type { LoopContext, LoopConfig, LoopResult } from "./loop.js";
 
 // Tool handlers
 export { toolHandlers } from "./tool-handlers.js";
