@@ -73,6 +73,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc --project tsconfig.json",
+    "lint": "eslint src/ --max-warnings 0",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
