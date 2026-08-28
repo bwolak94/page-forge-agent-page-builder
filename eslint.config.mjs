@@ -22,6 +22,15 @@ export default tseslint.config(
     ],
   },
 
+  // ── TypeScript parser for all TS/TSX files ────────────────────────────────
+  // Without this, ESLint treats .ts files as plain JS and fails on TS syntax.
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parser: tseslint.parser,
+    },
+  },
+
   // ── Boundary enforcement ───────────────────────────────────────────────────
   {
     files: [
