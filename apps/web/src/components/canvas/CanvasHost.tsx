@@ -106,7 +106,6 @@ export function CanvasHost({ docId }: CanvasHostProps) {
       bridgeRef.current = null;
       window.removeEventListener("resize", updateOffset);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docId]);
 
   // Re-send doc when it changes

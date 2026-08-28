@@ -82,7 +82,6 @@ export function PropsPanel({ nodeId }: PropsPanelProps) {
   }
 
   return (
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     <form
       onChange={handleSubmit(onSubmit)}
       style={{ display: "flex", flexDirection: "column", gap: 12, padding: 12 }}
