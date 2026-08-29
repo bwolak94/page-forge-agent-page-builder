@@ -1,0 +1,44 @@
+# docker-compose.test.yml — infrastructure for Playwright e2e tests.
+#
+# Provides an isolated Postgres + Redis instance for the test environment.
+# The agent and worker apps must be started separately before running e2e tests:
+#
+#   pnpm turbo build
+#   DATABASE_URL=postgresql://pageforge:pageforge@localhost:5433/pageforge_test \
+#   REDIS_HOST=localhost REDIS_PORT=6380 \
+#   pnpm --filter agent start &
+#
+#   DATABASE_URL=postgresql://pageforge:pageforge@localhost:5433/pageforge_test \
+#   REDIS_HOST=localhost REDIS_PORT=6380 \
+#   pnpm --filter worker start &
+#
+# Usage:
+#   docker compose -f docker-compose.test.yml up -d
+#   FIXTURE_DOC_ID=<seeded-doc-id> pnpm exec playwright test
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pageforge
+      POSTGRES_PASSWORD: pageforge
+      POSTGRES_DB: pageforge_test
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pageforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  redis-test:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

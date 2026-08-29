@@ -33,7 +33,7 @@ function InsertNodeRenderer({ args, result }: RendererProps) {
       <span style={{ color: "#94a3b8" }}>
         {String(a.type)} → {String(a.parentId)}:{String(a.slot)}
       </span>
-      {r?.ok && <span style={{ color: "#60a5fa" }}>✓ inserted</span>}
+      {!!r?.ok && <span style={{ color: "#60a5fa" }}>✓ inserted</span>}
     </div>
   );
 }

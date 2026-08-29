@@ -138,6 +138,8 @@ describe("runLoop", () => {
     ]);
 
     const { ctx } = makeCtx(makeMinimalDocument(), llm);
-    await expect(runLoop(ctx)).resolves.toBeUndefined();
+    const result = await runLoop(ctx);
+    expect(result.steps).toBe(1);
+    expect(result.doc).toBeDefined();
   });
 });
