@@ -46,3 +46,6 @@ jobs:
         env:
           DATABASE_URL: ""
           REDIS_HOST: ""
+
+      - name: Integration tests (db — requires Docker)
+        run: pnpm --filter @pageforge/db run test:integration
