@@ -15,6 +15,7 @@
     "@aws-sdk/s3-request-presigner": "^3.600.0",
     "@pageforge/db": "workspace:*",
     "@pageforge/emitter-html": "workspace:*",
+    "@pageforge/emitter-react": "workspace:*",
     "@pageforge/ir": "workspace:*",
     "@pageforge/registry": "workspace:*",
     "archiver": "^7.0.0",

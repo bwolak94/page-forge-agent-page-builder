@@ -11,7 +11,7 @@
 
 import { nanoid } from "nanoid";
 import { nodeId, type Document, type DocNode, type JsonValue, type NodeId } from "./types.js";
-import { SCHEMA_VERSION, DEFAULT_THEME, DEFAULT_BREAKPOINTS, ROOT_ID } from "./constants.js";
+import { SCHEMA_VERSION, DEFAULT_THEME, DEFAULT_BREAKPOINTS, ROOT_ID, HOME_PAGE_ID } from "./constants.js";
 
 // ---------------------------------------------------------------------------
 // Nested tree types (import/export format)
@@ -81,6 +81,10 @@ export function fromNestedTree(input: NestedDocument): Document {
     nodes,
     theme: input.theme ?? DEFAULT_THEME,
     breakpoints: input.breakpoints ?? [...DEFAULT_BREAKPOINTS],
+    pages: {
+      [HOME_PAGE_ID]: { id: HOME_PAGE_ID, slug: "home", title: "Home", root: rootNodeId },
+    },
+    activePageId: HOME_PAGE_ID,
   };
 }
 
@@ -151,6 +155,10 @@ export function makeDocument(nodes: DocNode[]): Document {
     nodes: nodesMap,
     theme: DEFAULT_THEME,
     breakpoints: [...DEFAULT_BREAKPOINTS],
+    pages: {
+      [HOME_PAGE_ID]: { id: HOME_PAGE_ID, slug: "home", title: "Home", root: root.id },
+    },
+    activePageId: HOME_PAGE_ID,
   };
 }
 
@@ -172,5 +180,9 @@ export function makeMinimalDocument(): Document {
     },
     theme: DEFAULT_THEME,
     breakpoints: [...DEFAULT_BREAKPOINTS],
+    pages: {
+      [HOME_PAGE_ID]: { id: HOME_PAGE_ID, slug: "home", title: "Home", root: ROOT_ID },
+    },
+    activePageId: HOME_PAGE_ID,
   };
 }

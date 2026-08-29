@@ -78,6 +78,8 @@ export const DEFAULT_BREAKPOINTS = [
 // Empty document — a valid minimal Document with only the root Page node
 // ---------------------------------------------------------------------------
 
+export const HOME_PAGE_ID = "home";
+
 export const EMPTY_DOCUMENT: Document = {
   schemaVersion: SCHEMA_VERSION,
   root: ROOT_ID,
@@ -91,4 +93,13 @@ export const EMPTY_DOCUMENT: Document = {
   },
   theme: DEFAULT_THEME,
   breakpoints: [...DEFAULT_BREAKPOINTS],
+  pages: {
+    [HOME_PAGE_ID]: {
+      id: HOME_PAGE_ID,
+      slug: "home",
+      title: "Home",
+      root: ROOT_ID,
+    },
+  },
+  activePageId: HOME_PAGE_ID,
 };

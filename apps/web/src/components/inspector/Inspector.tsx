@@ -14,16 +14,22 @@ import { useInspector } from "../../hooks/useInspector.js";
 import { PropsPanel } from "./PropsPanel.js";
 import { ThemePanel } from "./ThemePanel.js";
 import { MetaPanel } from "./MetaPanel.js";
+import { HistoryTimeline } from "../history/HistoryTimeline.js";
 
-type Tab = "props" | "theme" | "meta";
+type Tab = "props" | "theme" | "meta" | "history";
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "props", label: "Props" },
   { id: "theme", label: "Theme" },
   { id: "meta", label: "Meta" },
+  { id: "history", label: "History" },
 ];
 
-export function Inspector() {
+interface InspectorProps {
+  docId?: string;
+}
+
+export function Inspector({ docId }: InspectorProps) {
   const [activeTab, setActiveTab] = useState<Tab>("props");
   const { selectedId, node } = useInspector();
 
@@ -87,6 +93,14 @@ export function Inspector() {
             <MetaPanel key={selectedId} nodeId={selectedId} />
           ) : (
             <Placeholder text="Select a node to edit its metadata." />
+          )
+        )}
+
+        {activeTab === "history" && (
+          docId ? (
+            <HistoryTimeline docId={docId} />
+          ) : (
+            <Placeholder text="No document loaded." />
           )
         )}
       </div>

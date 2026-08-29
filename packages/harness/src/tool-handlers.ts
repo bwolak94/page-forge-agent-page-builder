@@ -9,6 +9,7 @@
  * validate. Errors are formatted into human-readable hint strings (never exceptions).
  */
 
+import { nanoid } from "nanoid";
 import type { Document, NodeId } from "@pageforge/ir";
 import type { RegistryInterface } from "@pageforge/commands";
 import { executeCommand } from "@pageforge/commands";
@@ -24,6 +25,14 @@ import type { JsonPatch } from "@pageforge/ir";
 
 export type HarnessEvent =
   | { type: "doc.patch"; seq: number; patches: JsonPatch[]; affected: NodeId[] }
+  | {
+      type: "doc.preview";
+      previewId: string;
+      kind: string;
+      patches: JsonPatch[];
+      inverse: JsonPatch[];
+      affected: NodeId[];
+    }
   | { type: "agent.text"; chunk: string }
   | { type: "agent.step"; step: number; usage: unknown }
   | { type: "agent.done"; steps: number; usage: unknown }
@@ -157,6 +166,47 @@ export const toolHandlers = {
 
   preview: async (_args: unknown, _ctx: ToolContext): Promise<ToolResult> =>
     ok({ message: "Preview requested. Assess the current canvas state visually." }),
+
+  /**
+   * proposeChange — compute a command's patches and emit a doc.preview SSE event
+   * WITHOUT committing to the event log. The client shows Accept / Reject UI.
+   * The agent must NOT call mutating tools in the same turn after proposeChange.
+   */
+  proposeChange: async (
+    args: { kind: string; commandArgs: unknown },
+    ctx: ToolContext,
+  ): Promise<ToolResult> => {
+    const result = executeCommand(ctx.docRef.current, ctx.registry, args.kind, args.commandArgs);
+    if (result.isErr()) return fail(formatDomainError(result.error));
+
+    const { patches, inverse, affected } = result.value;
+    const previewId = nanoid(10);
+
+    ctx.sseEmit({
+      type: "doc.preview",
+      previewId,
+      kind: args.kind,
+      patches,
+      inverse,
+      affected,
+    });
+
+    return ok({
+      previewId,
+      message: `Preview proposed for "${args.kind}". Waiting for user to accept or reject.`,
+    });
+  },
+
+  /** listPages — convenience read tool for multi-page documents. */
+  listPages: async (_args: unknown, ctx: ToolContext): Promise<ToolResult> => {
+    const pages = Object.values(ctx.docRef.current.pages).map(p => ({
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      isActive: p.id === ctx.docRef.current.activePageId,
+    }));
+    return ok({ pages });
+  },
 } as const;
 
 export type ToolHandlers = typeof toolHandlers;

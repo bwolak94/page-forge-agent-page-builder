@@ -214,6 +214,9 @@ importers:
       '@pageforge/emitter-html':
         specifier: workspace:*
         version: link:../../packages/emitter-html
+      '@pageforge/emitter-react':
+        specifier: workspace:*
+        version: link:../../packages/emitter-react
       '@pageforge/ir':
         specifier: workspace:*
         version: link:../../packages/ir
@@ -437,6 +440,9 @@ importers:
       langfuse:
         specifier: ^3.38.0
         version: 3.38.20
+      nanoid:
+        specifier: ^5.0.0
+        version: 5.1.16
       neverthrow:
         specifier: ^8.1.0
         version: 8.2.0

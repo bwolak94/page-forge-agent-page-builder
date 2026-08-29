@@ -23,6 +23,7 @@
     "@pageforge/ir": "workspace:*",
     "@pageforge/registry": "workspace:*",
     "ai": "^4.3.0",
+    "nanoid": "^5.0.0",
     "langfuse": "^3.38.0",
     "neverthrow": "^8.1.0",
     "tiktoken": "^1.0.21",

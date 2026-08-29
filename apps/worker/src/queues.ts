@@ -8,6 +8,7 @@
 import { Queue } from "bullmq";
 
 export const HTML_BUILD_QUEUE_NAME = "html-build";
+export const DEPLOY_QUEUE_NAME = "deploy";
 
 // ---------------------------------------------------------------------------
 // Queue factory

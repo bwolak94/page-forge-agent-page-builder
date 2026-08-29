@@ -110,25 +110,58 @@ export interface Breakpoint {
 }
 
 // ---------------------------------------------------------------------------
+// PageEntry — descriptor for a single page in a multi-page document
+// ---------------------------------------------------------------------------
+
+/**
+ * Metadata for one page within the document.
+ * The page's content lives entirely within `doc.nodes` — this is just the index.
+ */
+export interface PageEntry {
+  /** Stable unique identifier for this page (nanoid). */
+  readonly id: string;
+  /** URL-safe slug, e.g. "about-us". Must be unique within the document. */
+  readonly slug: string;
+  /** Human-readable title shown in the page tab bar. */
+  readonly title: string;
+  /** Id of the root Page node for this page in `doc.nodes`. */
+  readonly root: NodeId;
+}
+
+// ---------------------------------------------------------------------------
 // Document — the root of the IR
 // ---------------------------------------------------------------------------
 
 /**
- * The entire page document.
+ * The entire document, potentially containing multiple pages.
  *
  * `nodes` is a flat map — O(1) lookup, single-key patches, no deep paths.
- * `root` is the id of the top-level Page node.
+ * `root` is the id of the ACTIVE page's root node (shortcut kept for compat).
+ * `pages` is the ordered index of all pages; keys are page ids.
+ * `activePageId` identifies which page is currently being edited.
  */
 export interface Document {
   /** Incremented when the schema shape changes; triggers migration. */
   readonly schemaVersion: number;
-  /** Id of the root Page node. */
+  /**
+   * Id of the active page's root Page node.
+   * Always equals `pages[activePageId].root`.
+   * Kept as a top-level field so existing emitters/selectors need zero changes.
+   */
   readonly root: NodeId;
   /**
    * All nodes in a flat map. The agent and commands address nodes by ID only.
    * A patch touching `/nodes/x7f/props/padding` is unambiguous and O(1).
+   * Nodes from ALL pages live in this single map.
    */
   readonly nodes: Record<NodeId, DocNode>;
   readonly theme: ThemeTokens;
   readonly breakpoints: Breakpoint[];
+  /**
+   * Ordered page index. Keys are stable page ids (nanoid).
+   * A single-page document has exactly one entry: `{ home: { ... } }`.
+   */
+  readonly pages: Record<string, PageEntry>;
+  /** The page currently being edited. Must be a key of `pages`. */
+  readonly activePageId: string;
 }

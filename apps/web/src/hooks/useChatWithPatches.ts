@@ -30,12 +30,22 @@ type DocPatchEvent = {
   affected: NodeId[];
 };
 
+type DocPreviewEvent = {
+  type: "doc.preview";
+  previewId: string;
+  kind: string;
+  patches: JsonPatch[];
+  inverse: JsonPatch[];
+  affected: NodeId[];
+};
+
 type AgentSSEEvent =
   | AgentTextEvent
   | AgentStepEvent
   | AgentDoneEvent
   | AgentErrorEvent
-  | DocPatchEvent;
+  | DocPatchEvent
+  | DocPreviewEvent;
 
 // ---------------------------------------------------------------------------
 // Chat message type
@@ -64,6 +74,7 @@ export function useChatWithPatches(docId: string) {
 
   const applyServerPatch = useEditorStore(s => s.applyServerPatch);
   const setAffected = useEditorStore(s => s.setAffected);
+  const setPendingPreview = useEditorStore(s => s.setPendingPreview);
 
   const submit = useCallback(
     async (e?: React.FormEvent) => {
@@ -133,6 +144,14 @@ export function useChatWithPatches(docId: string) {
               setAffected(event.affected);
               // Flash affected nodes for 2 s then clear
               setTimeout(() => setAffected([]), 2000);
+            } else if (event.type === "doc.preview") {
+              setPendingPreview({
+                previewId: event.previewId,
+                kind: event.kind,
+                patches: event.patches,
+                inverse: event.inverse,
+                affected: event.affected,
+              });
             }
             // agent.step, agent.done, agent.error — no UI action needed for MVP
           }
@@ -152,7 +171,7 @@ export function useChatWithPatches(docId: string) {
         abortRef.current = null;
       }
     },
-    [input, isLoading, docId, applyServerPatch, setAffected],
+    [input, isLoading, docId, applyServerPatch, setAffected, setPendingPreview],
   );
 
   const stop = useCallback(() => {
