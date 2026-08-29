@@ -69,6 +69,8 @@ export class ReactEmitter implements NodeVisitor<string> {
       printWidth: 100,
       singleQuote: false,
       trailingComma: "all",
+      endOfLine: "lf",
+      resolveConfig: false,
     });
 
     const files = new Map<string, string>();
