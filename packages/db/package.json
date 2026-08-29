@@ -23,6 +23,7 @@
   "dependencies": {
     "@pageforge/ir": "workspace:*",
     "@pageforge/commands": "workspace:*",
+    "@pageforge/registry": "workspace:*",
     "drizzle-orm": "^0.38.0",
     "postgres": "^3.4.5",
     "zod": "^3.23.0"
