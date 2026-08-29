@@ -16,9 +16,11 @@ import { use, useEffect } from "react";
 import { DndProvider } from "@/components/dnd/DndProvider";
 import { CanvasHost } from "@/components/canvas/CanvasHost";
 import { LayerPanel } from "@/components/layer-panel/LayerPanel";
-import { ComponentPalette } from "@/components/palette/ComponentPalette";
+import { ComponentLibrary } from "@/components/library/ComponentLibrary";
 import { Inspector } from "@/components/inspector/Inspector";
 import { ChatPanel } from "@/components/chat/ChatPanel";
+import { PageBar } from "@/components/pages/PageBar";
+import { PreviewBar } from "@/components/chat/PreviewBar";
 import { useEditorStore } from "@/stores/editorStore";
 import { FIXTURE_DOCUMENT } from "@/lib/fixtureDocument";
 
@@ -87,10 +89,13 @@ export default function EditorPage({ params }: EditorPageProps) {
           </div>
         </header>
 
+        {/* Page tab bar */}
+        <PageBar />
+
         {/* Main layout */}
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          {/* Component palette */}
-          <ComponentPalette />
+          {/* Component library browser */}
+          <ComponentLibrary />
 
           {/* Layer panel sidebar */}
           <aside style={{ width: 220, flexShrink: 0 }}>
@@ -103,7 +108,7 @@ export default function EditorPage({ params }: EditorPageProps) {
           </main>
 
           {/* Inspector */}
-          <Inspector />
+          <Inspector docId={docId} />
 
           {/* Chat panel */}
           <aside style={{ width: 280, flexShrink: 0 }}>
@@ -111,6 +116,9 @@ export default function EditorPage({ params }: EditorPageProps) {
           </aside>
         </div>
       </div>
+
+      {/* Agent preview accept/reject bar — floats above canvas */}
+      <PreviewBar docId={docId} />
     </DndProvider>
   );
 }

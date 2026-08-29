@@ -15,6 +15,10 @@ import { duplicateNode } from "./commands/duplicate-node.js";
 import { reorderSlot } from "./commands/reorder-slot.js";
 import { applyTheme } from "./commands/apply-theme.js";
 import { setMeta } from "./commands/set-meta.js";
+import { addPage } from "./commands/add-page.js";
+import { removePage } from "./commands/remove-page.js";
+import { renamePage } from "./commands/rename-page.js";
+import { switchPage } from "./commands/switch-page.js";
 
 export const COMMAND_REGISTRY: Record<string, Command<unknown>> = {
   [insertNode.kind]: insertNode as Command<unknown>,
@@ -27,6 +31,10 @@ export const COMMAND_REGISTRY: Record<string, Command<unknown>> = {
   [reorderSlot.kind]: reorderSlot as Command<unknown>,
   [applyTheme.kind]: applyTheme as Command<unknown>,
   [setMeta.kind]: setMeta as Command<unknown>,
+  [addPage.kind]: addPage as Command<unknown>,
+  [removePage.kind]: removePage as Command<unknown>,
+  [renamePage.kind]: renamePage as Command<unknown>,
+  [switchPage.kind]: switchPage as Command<unknown>,
 };
 
 /** Ordered list of all registered command kind strings. */

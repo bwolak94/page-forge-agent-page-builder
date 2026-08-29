@@ -10,8 +10,9 @@
  */
 
 import { Worker, type Job } from "bullmq";
-import { HTML_BUILD_QUEUE_NAME } from "./queues.js";
+import { HTML_BUILD_QUEUE_NAME, DEPLOY_QUEUE_NAME } from "./queues.js";
 import { processHtmlBuild, type HtmlBuildJobData } from "./jobs/build.job.js";
+import { processDeployJob, type DeployJobData } from "./jobs/deploy.job.js";
 
 // ---------------------------------------------------------------------------
 // Redis connection
@@ -44,7 +45,24 @@ worker.on("failed", (job, err) => {
   console.error(`[worker] Job ${job?.id} failed:`, err.message);
 });
 
-console.log(`[worker] Listening on queue "${HTML_BUILD_QUEUE_NAME}"`);
+const deployWorker = new Worker<DeployJobData>(
+  DEPLOY_QUEUE_NAME,
+  async (job: Job<DeployJobData>) => {
+    console.log(`[worker] Processing deploy job ${job.id} — buildId=${job.data.buildId} provider=${job.data.provider}`);
+    await processDeployJob(job);
+    console.log(`[worker] Completed deploy job ${job.id}`);
+  },
+  {
+    connection,
+    concurrency: 2,
+  },
+);
+
+deployWorker.on("failed", (job, err) => {
+  console.error(`[worker] Deploy job ${job?.id} failed:`, err.message);
+});
+
+console.log(`[worker] Listening on queues "${HTML_BUILD_QUEUE_NAME}", "${DEPLOY_QUEUE_NAME}"`);
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown
@@ -52,7 +70,7 @@ console.log(`[worker] Listening on queue "${HTML_BUILD_QUEUE_NAME}"`);
 
 async function shutdown(): Promise<void> {
   console.log("[worker] Shutting down...");
-  await worker.close();
+  await Promise.all([worker.close(), deployWorker.close()]);
   process.exit(0);
 }
 

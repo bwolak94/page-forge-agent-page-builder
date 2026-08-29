@@ -47,3 +47,15 @@ export type { ApplyThemeArgs } from "./commands/apply-theme.js";
 
 export { setMeta, setMetaSchema } from "./commands/set-meta.js";
 export type { SetMetaArgs } from "./commands/set-meta.js";
+
+export { addPage, addPageSchema } from "./commands/add-page.js";
+export type { AddPageArgs } from "./commands/add-page.js";
+
+export { removePage, removePageSchema } from "./commands/remove-page.js";
+export type { RemovePageArgs } from "./commands/remove-page.js";
+
+export { renamePage, renamePageSchema } from "./commands/rename-page.js";
+export type { RenamePageArgs } from "./commands/rename-page.js";
+
+export { switchPage, switchPageSchema } from "./commands/switch-page.js";
+export type { SwitchPageArgs } from "./commands/switch-page.js";

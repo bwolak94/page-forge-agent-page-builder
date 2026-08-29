@@ -95,13 +95,19 @@ export function checkReachability(doc: Document): Result<void, ValidationError> 
     }
   }
 
-  dfs(doc.root);
+  // Traverse from ALL page roots so multi-page nodes are reachable.
+  // Guard against legacy fixtures / migrations that omit `pages`.
+  const pageRoots = Object.values(doc.pages ?? {}).map(p => p.root);
+  const roots = pageRoots.length > 0 ? pageRoots : [doc.root];
+  for (const rootId of roots) {
+    dfs(rootId);
+  }
 
   for (const id of Object.keys(doc.nodes) as NodeId[]) {
     if (!reachable.has(id)) {
       return err({
         code: "ORPHAN",
-        message: `Node "${id}" is not reachable from root — it is an orphan.`,
+        message: `Node "${id}" is not reachable from any page root — it is an orphan.`,
         nodeId: id,
       });
     }

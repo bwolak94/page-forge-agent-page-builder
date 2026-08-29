@@ -22,6 +22,9 @@ import { Hono } from "hono";
 import { commandsRoute } from "./routes/commands.js";
 import { chatRoute } from "./routes/chat.js";
 import { buildsRoute } from "./routes/builds.js";
+import { previewRoute } from "./routes/preview.js";
+import { deployRoute } from "./routes/deploy.js";
+import { historyRoute } from "./routes/history.js";
 import { register } from "./observability/metrics.js";
 
 const app = new Hono();
@@ -37,6 +40,9 @@ app.get("/metrics", async c => {
 app.route("/api", commandsRoute);
 app.route("/api", chatRoute);
 app.route("/api/builds", buildsRoute);
+app.route("/api/preview", previewRoute);
+app.route("/api/deploy", deployRoute);
+app.route("/api/documents", historyRoute);
 
 const port = Number(process.env["PORT"] ?? 3001);
 

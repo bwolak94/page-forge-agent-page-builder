@@ -3,7 +3,7 @@
  */
 
 import type { Document, NodeId } from "@pageforge/ir";
-import { nodeId, EMPTY_DOCUMENT, DEFAULT_THEME, DEFAULT_BREAKPOINTS } from "@pageforge/ir";
+import { nodeId, EMPTY_DOCUMENT, DEFAULT_THEME, DEFAULT_BREAKPOINTS, HOME_PAGE_ID } from "@pageforge/ir";
 import type { RegistryInterface } from "../../src/types.js";
 
 // ---------------------------------------------------------------------------
@@ -79,6 +79,8 @@ export function makeTreeDoc(): Document {
     } as Record<NodeId, (typeof EMPTY_DOCUMENT)["nodes"][NodeId]>,
     theme: DEFAULT_THEME,
     breakpoints: [...DEFAULT_BREAKPOINTS],
+    pages: { [HOME_PAGE_ID]: { id: HOME_PAGE_ID, slug: "home", title: "Home", root: ids.root } },
+    activePageId: HOME_PAGE_ID,
   };
 }
 
@@ -104,5 +106,7 @@ export function makeLockedDoc(): Document {
     } as Record<NodeId, (typeof EMPTY_DOCUMENT)["nodes"][NodeId]>,
     theme: DEFAULT_THEME,
     breakpoints: [...DEFAULT_BREAKPOINTS],
+    pages: { [HOME_PAGE_ID]: { id: HOME_PAGE_ID, slug: "home", title: "Home", root: ids.root } },
+    activePageId: HOME_PAGE_ID,
   };
 }

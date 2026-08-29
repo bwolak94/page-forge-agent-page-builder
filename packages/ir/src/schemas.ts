@@ -83,6 +83,17 @@ export const breakpointSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// PageEntry
+// ---------------------------------------------------------------------------
+
+export const pageEntrySchema = z.object({
+  id: z.string().min(1),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, "slug must be lowercase alphanumeric with hyphens"),
+  title: z.string().min(1),
+  root: nodeIdSchema,
+});
+
+// ---------------------------------------------------------------------------
 // Document
 // ---------------------------------------------------------------------------
 
@@ -92,6 +103,8 @@ export const documentSchema = z.object({
   nodes: z.record(nodeIdSchema, docNodeSchema),
   theme: themeTokensSchema,
   breakpoints: z.array(breakpointSchema),
+  pages: z.record(z.string(), pageEntrySchema),
+  activePageId: z.string().min(1),
 });
 
 // Note: JsonPatch and PatchSet Zod schemas live in patches.schema.ts

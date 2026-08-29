@@ -17,6 +17,7 @@ export type {
   NodeMeta,
   ThemeTokens,
   Breakpoint,
+  PageEntry,
   Document,
 } from "./types.js";
 
@@ -29,6 +30,7 @@ export {
   nodeMetaSchema,
   themeTokensSchema,
   breakpointSchema,
+  pageEntrySchema,
   documentSchema,
 } from "./schemas.js";
 
@@ -40,6 +42,7 @@ export { domainError } from "./errors.js";
 export {
   SCHEMA_VERSION,
   ROOT_ID,
+  HOME_PAGE_ID,
   DEFAULT_THEME,
   DEFAULT_BREAKPOINTS,
   EMPTY_DOCUMENT,
